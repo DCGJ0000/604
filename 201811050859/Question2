@@ -1,0 +1,104 @@
+//数组
+#include<iostream>
+using namespace std;
+int main()
+{
+	int i, j, n, m, last;
+	//m(猴子总数)
+    //n(第几个猴子离开圈子)
+	//last(剩余的猴子数)
+	int tag[2048];
+	cout << "输入猴子总数:" << endl;
+	cin >> m;
+	cout << "输入每隔多少离开一个猴子：" << endl;
+	cin >> n;
+	cout << endl;
+	//初始化数组
+	for (i = 0; i < m; i++)
+	{
+		tag[i] = 1;
+	}
+	//挑出猴王
+	j = 1;
+	last = m;
+	for (i = 0; last > 1; i++)
+	{
+		if (!tag[i % m])continue;
+		if (j == n)
+		{
+			j = 1;
+			tag[i % m] = 0;
+			last--;
+			cout << "第 " << (i % m) + 1 << " 个猴子离开了圈子" << "——————" << "剩余 " << last << " 个猴子" << endl;
+		}
+		else j++;
+	}
+	for (i = 0; i < m; i++)if (tag[i])break;
+	cout << endl << "第" << i + 1 << "个猴子成为了猴王" << endl;
+	system("pause");
+	return 0;
+}
+
+//链表
+#include <iostream>
+#include<malloc.h>
+using namespace std;
+
+//定义循环链表的存储结构
+typedef struct LNode
+{
+	int data;         //数据域
+	struct LNode* next;   //指针域 
+}LNode;
+typedef struct LNode* LinkList;
+
+//定义循环链表的初始化方法
+LinkList createList(int n)
+{
+	cout << "初始化循环链表" << endl;
+	LinkList head, s, p;
+	int i = 1;
+	head = (LinkList)malloc(sizeof(LNode));
+	p = head;
+	if (n != 0)
+	{
+		while (i <= n)
+		{
+			s = (LinkList)malloc(sizeof(LNode));
+			s->data = i++;  //初始化链表，第一个结点值为1，第二个为2这样以此类推
+			p->next = s;
+			p = s;
+		}
+		s->next = head->next;
+	}
+	free(head);
+	return s->next;
+}
+
+int main()
+{
+	int m, n, i;
+	cout << "输入猴子总数" << endl;
+	cin >> m;
+	cout << "输入每隔多少离开一个猴子：" << endl;
+	cin >> n;
+	LinkList p = createList(m);
+	LinkList temp;
+	cout << endl;
+	while (p != p->next)
+	{
+		for (i = 1; i < n - 1; i++)
+		{
+			p = p->next;
+		}
+		cout << "第 " << p->next->data << " 个猴子离开了圈子" << endl;
+		//删除第m个结点
+		temp = p->next;
+		p->next = temp->next;
+		free(temp);
+		p = p->next;
+	}
+	cout << endl << "第 " << p->data << " 个猴子成为了猴王" << endl;
+	system("pause");
+	return 0;
+}
