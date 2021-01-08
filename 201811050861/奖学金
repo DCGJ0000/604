@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+ 
+#define N 300
+#define N2 5
+ 
+struct _student {
+    int no;
+    int yuwen;
+    int total;
+} s[N];
+ 
+int cmp( const void *a , const void *b )
+{
+    struct _student *pa = (struct _student *)a;
+    struct _student *pb = (struct _student *)b;
+ 
+    if(pa->total != pb->total)
+        return pa->total < pb->total;
+    else if(pa->yuwen != pb->yuwen)
+        return pa->yuwen < pb->yuwen;
+    else
+        return pa->no > pb->no;
+}
+ 
+int main(void)
+{
+    int n, a, b, i;
+ 
+    scanf("%d", &n);
+    for(i=0; i<n; i++) {
+        scanf("%d%d%d", &s[i].yuwen, &a, &b);
+        s[i].no = i + 1;
+        s[i].total = s[i].yuwen + a + b;
+    }
+ 
+    qsort(s, n, sizeof(s[0]), cmp);
+ 
+    for(i=0; i<N2; i++)
+        printf("%d %d\n", s[i].no, s[i].total);
+ 
+    return 0;
+}
