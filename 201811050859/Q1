@@ -1,1 +1,65 @@
-.
+//1. 值传递
+#include <iostream>
+using namespace std;
+void combine_numbers(int m, int n)
+{
+    int a, b, c, d, e;
+    a = m / 10;
+    b = m % 10;
+    c = n % 10;
+    d = n / 10;
+    e = a * 1000 + b + c * 10 + d * 100;
+    cout << "合并后的数： " << e << endl;
+}
+int main()
+{
+    int m = 12;
+    int n = 34;
+    combine_numbers(m, n);
+    system("pause");
+    return 0;
+}
+
+//2.引用传递
+#include <iostream>
+using namespace std;
+void combine_numbers(int& m, int& n)
+{
+    int a, b, c, d, e;
+    a = m / 10;
+    b = m % 10;
+    c = n % 10;
+    d = n / 10;
+    e = a * 1000 + b + c * 10 + d * 100;
+    cout << "合并后的数： " << e << endl;
+}
+int main()
+{
+    int m = 12;
+    int n = 34;
+    combine_numbers(m, n);
+    system("pause");
+    return 0;
+}
+
+//3.地址传递
+#include <iostream>
+using namespace std;
+void combine_numbers(int *m, int *n)
+{
+    int a, b, c, d, e;
+    a = *m / 10;
+    b = *m % 10;
+    c = *n % 10;
+    d = *n / 10;
+    e = a * 1000 + b + c * 10 + d * 100;
+    cout << "合并后的数： " << e << endl;
+}
+int main()
+{
+    int m = 12;
+    int n = 34;
+    combine_numbers(&m, &n);
+    system("pause");
+    return 0;
+}
