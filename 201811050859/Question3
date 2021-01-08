@@ -1,0 +1,52 @@
+#include <iostream>
+#include <vector>
+#include <algorithm> 
+using namespace std;
+
+struct student
+{
+    int id;       //学生的学号
+    int chinese;  //学生的语文成绩
+    int math;     //学生的数学成绩
+    int english;  //学生的英语成绩
+    int sum;      //学生的总成绩
+};
+
+bool cmp(student a, student b)
+{
+    if (a.sum != b.sum)   //先按总分从高到低排序
+    {
+        return a.sum > b.sum;
+    }
+    else if (a.chinese != b.chinese)   //若总分相同,则按语文成绩从高到低排序
+    {
+        return a.chinese > b.chinese;
+    }
+    else  //若总分和语文成绩都相同,则把学好小的排在前面
+    {
+        return a.id < b.id;
+    }
+}
+
+int main()
+{
+    int N;  //该校参加评选的学生人数
+    cout << "输入参加评选的学生人数" << endl;
+    cin >> N;
+    vector<student> v;
+    cout << "输入学生的语文、数学、英语成绩" << endl;
+    for (int i = 1; i <= N; i++)
+    {
+        int chinese, math, english, sum = 0;
+        cin >> chinese >> math >> english;
+        sum += chinese + math + english;
+        v.push_back({ i,chinese,math,english,sum });
+    }
+    sort(v.begin(), v.end(), cmp);   //对学生进行排序
+    for (int i = 0; i < 5; i++)
+    {
+        cout << v[i].id << " 号学生——" << "——总分为： " << v[i].sum << endl;
+    }
+    system("pause");
+    return 0;
+}
