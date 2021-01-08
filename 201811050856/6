@@ -1,0 +1,59 @@
+6.面向对象设计
+#include<iostream> 
+#include <math.h> 
+using namespace std;
+class 汽车
+{
+protected:
+	int 轮胎;
+	int 重量;
+public:
+	汽车(int wheels, int weight)
+	{
+		轮胎 = wheels;
+		重量 = weight;
+	}
+	void disp()
+	{
+		cout << "轮胎=" << 轮胎 << ",重量=" << 重量 << endl;
+	}
+};
+class 小车 :private 汽车
+{
+	int 核载人数;
+public:
+	小车(int wheels, int weight, int passenger) :汽车(wheels, weight)
+	{
+		核载人数 = passenger;
+	}
+	void disp()
+	{
+		汽车::disp();
+		cout << "核载人数=" << 核载人数 << endl;
+	}
+};
+class 卡车 :private 汽车
+{
+	int 核载人数;
+	int 核载重量;
+public:
+	卡车(int wheels, int weight, int passenger, int payload) :汽车(wheels, weight)
+	{
+		核载人数 = passenger;
+		核载重量 = payload;
+	}
+	void disp()
+	{
+		汽车::disp();
+		cout << "核载人数=" << 核载人数 << "核载重量=" << 核载重量 << endl;
+	}
+};
+void main()
+{
+	汽车 v(100, 99);
+	v.disp();
+	小车 c(50, 40, 30);
+	c.disp();
+	卡车 t(20, 15, 10, 5);
+	t.disp();
+}
