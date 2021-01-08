@@ -1,0 +1,409 @@
+#include<iostream>
+#include<mysql.h>
+#include<string>
+#include <fstream>
+
+#define Max 1024
+#define PassWord 123456
+
+using namespace std;
+
+void showMenu()		//显示菜单
+{
+	cout << "\n\t\t*************------学生选修课程理系统------************** \n\n";
+	cout << "\t\t|-----------------   1.课程信息录入   --------------|\n";
+	cout << "\t\t|-----------------   2.课程信息浏览   --------------|\n";
+	cout << "\t\t|-----------------   3.课程信息查询   --------------|\n";
+	cout << "\t\t|-----------------   4.课程信息修改   --------------|\n";
+	cout << "\t\t|-----------------   5.课程信息清空   --------------|\n";
+	cout << "\t\t|-----------------   0.退         出  --------------|\n";
+	cout << endl;
+	cout << "请输入选择：" << endl;
+}
+
+struct Course
+{
+	string Course_ID;				//课程编号
+	string Course_Name;				//课程名称
+	int Course_Type;				//课程性质（1.公共课  2.必修课  3.选修课)
+	int Course_Hour_total;			//总学时
+	int Course_Hour_class;			//授课学时
+	int Course_Hour_experiment;		//实验或上机学时
+	float Course_Credit;			//课程学分
+	int Course_Semester;			//开课学期
+};
+
+struct Course_Table
+{
+	struct Course course_table[Max];
+	int m_Size;						//已选择的课程数
+};
+
+void addCourse(Course_Table* C_Tab)	//添加课程
+{
+	if (C_Tab->m_Size == Max)		//判断课表是否已满
+	{
+		cout << "课表已满，无法添加课程" << endl;
+		return;
+	}
+	else
+	{
+		string Course_id;					//课程编号
+		cout << "请输入课程编号：" << endl;
+		cin >> Course_id;
+		C_Tab->course_table[C_Tab->m_Size].Course_ID = Course_id;
+		string Course_name;					//课程名称
+		cout << "请输入课程名称：" << endl;
+		cin >> Course_name;
+		C_Tab->course_table[C_Tab->m_Size].Course_Name = Course_name;
+		cout << "请输入课程类型：" << endl;	//课程性质
+		cout << "1 -- 公共课" << endl;
+		cout << "2 -- 必修课" << endl;
+		cout << "3 -- 选修课" << endl;
+		int Course_type = 0;
+		while (true)
+		{
+			cin >> Course_type;
+			if (Course_type == 1 || Course_type == 2 || Course_type == 3)
+			{
+				C_Tab->course_table[C_Tab->m_Size].Course_Type = Course_type;
+				break;
+			}
+			cout << "输入有误，请重新输入" << endl;
+		}
+		cout << "请输入总学时: " << endl;	//总学时
+		int Course_hour_total = 0;
+		cin >> Course_hour_total;
+		C_Tab->course_table[C_Tab->m_Size].Course_Hour_total = Course_hour_total;
+
+		cout << "请输入授课学时: " << endl;	//授课学时
+		int Course_hour_class = 0;
+		cin >> Course_hour_class;
+		C_Tab->course_table[C_Tab->m_Size].Course_Hour_class = Course_hour_class;
+
+		cout << "请输入实验或上机学时: " << endl;		//实验或上机学时
+		int Course_hour_experiment = 0;
+		cin >> Course_hour_experiment;
+		C_Tab->course_table[C_Tab->m_Size].Course_Hour_experiment = Course_hour_experiment;
+
+		cout << "请输入学分: " << endl;			//课程学分
+		float Course_credit = 0;
+		cin >> Course_credit;
+		C_Tab->course_table[C_Tab->m_Size].Course_Credit = Course_credit;
+
+		cout << "请输入开课学期: " << endl;		//开课学期
+		int Course_semester = 0;
+		cin >> Course_semester;
+		C_Tab->course_table[C_Tab->m_Size].Course_Semester = Course_semester;
+
+		C_Tab->m_Size++;						//更新已选课程数
+		cout << "课程添加成功" << endl;
+		system("pause");
+		system("cls");
+	}
+}
+
+void showCourse(Course_Table* C_Tab)			//显示已选课程信息
+{
+	if (C_Tab->m_Size == 0)
+	{
+		cout << "当前记录为空" << endl;
+		system("pause");
+		system("cls");
+	}
+	else
+	{
+		for (int i = 0; i < C_Tab->m_Size; i++)
+		{
+			cout << "课程编号： " << C_Tab->course_table[i].Course_ID << "\t";
+			cout << "课程名称： " << C_Tab->course_table[i].Course_Name << "\t";
+			if (C_Tab->course_table[i].Course_Type == 1)
+			{
+				cout << "课程性质: 公共课 " << "\t";
+			}
+			if (C_Tab->course_table[i].Course_Type == 2)
+			{
+				cout << "课程性质：必修课 " << "\t";
+			}
+			if (C_Tab->course_table[i].Course_Type == 3)
+			{
+				cout << "课程性质：选修课 " << "\t";
+			}
+			cout << "总学时： " << C_Tab->course_table[i].Course_Hour_total << "\t";
+			cout << "授课学时： " << C_Tab->course_table[i].Course_Hour_class << "\t";
+			cout << "实验或上机学时： " << C_Tab->course_table[i].Course_Hour_experiment << "\t";
+			cout << "课程学分：" << C_Tab->course_table[i].Course_Credit << "\t";
+			cout << "开课学期： " << C_Tab->course_table[i].Course_Semester << "\t";
+		}
+		system("pause");
+		system("cls");
+	}
+}
+
+//判断是否存在查询的课程编号，存在返回在数组中索引位置，不存在返回-1
+int isExist_ID(Course_Table* C_Tab, string Course_id)	
+{
+	for (int i = 0; i < C_Tab->m_Size; i++)
+	{
+		if (C_Tab->course_table[i].Course_ID == Course_id)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+//判断是否存在查询的课程学分，存在返回在数组中索引位置，不存在返回-1
+int isExist_Credit(Course_Table* C_Tab, float Course_credit)
+{
+	for (int j = 0; j < C_Tab->m_Size; j++)
+	{
+		if (C_Tab->course_table[j].Course_Credit == Course_credit)
+		{
+			return j;
+		}
+	}
+	return -1;
+}
+
+//判断是否存在查询的课程类型，存在返回在数组中索引位置，不存在返回-1
+int isExist_Type(Course_Table* C_Tab, float Course_type)
+{
+	for (int k = 0; k < C_Tab->m_Size; k++)
+	{
+		if (C_Tab->course_table[k].Course_Type == Course_type)
+		{
+			return k;
+		}
+	}
+	return -1;
+}
+
+void deleteCourse(Course_Table* C_Tab)		//删除课程
+{
+	cout << "请输入要删除的课程编号" << endl;
+	string id;
+	cin >> id;
+	int ret = isExist_ID(C_Tab, id);
+	if (ret != -1)
+	{
+		for (int i = ret; i < C_Tab->m_Size; i++)
+		{
+			C_Tab->course_table[i] = C_Tab->course_table[i + 1];
+		}
+		C_Tab->m_Size--;
+		cout << "删除成功" << endl;
+	}
+	else
+	{
+		cout << "未找到该课程" << endl;
+	}
+	system("pasue");
+	system("cls");
+}
+
+void findCourse(Course_Table * C_Tab)		//查找指定的课程
+{
+	cout << "请选择查询模式： " << endl;
+	cout << "1 -- 按学分查询" << endl;
+	cout << "2 -- 按课程类型查询" << endl;
+	int select = 0;
+	while (true)
+	{
+		cin >> select;
+		switch (select)
+		{
+		case 1:
+		{
+			cout << "请输入要查询的课程学分： " << endl;
+			float credit;
+			cin >> credit;
+			int ret_credit = isExist_Credit(C_Tab, credit);
+			if (ret_credit != -1)
+			{
+				cout << "课程编号： " << C_Tab->course_table[ret_credit].Course_ID << "\t";
+				cout << "课程名称： " << C_Tab->course_table[ret_credit].Course_Name << "\t";
+				cout << "课程类型： " << C_Tab->course_table[ret_credit].Course_Type << "\t";
+				cout << "总学时： " << C_Tab->course_table[ret_credit].Course_Hour_total << "\t";
+				cout << "授课学时： " << C_Tab->course_table[ret_credit].Course_Hour_class << "\t";
+				cout << "实验或上机学时： " << C_Tab->course_table[ret_credit].Course_Hour_experiment << "\t";
+				cout << "开课学期： " << C_Tab->course_table[ret_credit].Course_Semester << "\t";
+			}
+			else
+			{
+				cout << "未找到课程学分为 " << credit << " 的课程" << endl;
+			}
+			system("pause");
+			system("cls");
+			break;
+		}
+		case 2:
+		{
+			cout << "请输入要查询的课程类型： " << endl;
+			cout << "1 -- 公共课" << endl;
+			cout << "2 -- 必修课" << endl;
+			cout << "3 -- 选修课" << endl;
+			int type;
+			cin >> type;
+			int ret_type = isExist_Type(C_Tab, type);
+			if (ret_type != -1)
+			{
+				cout << "课程编号： " << C_Tab->course_table[ret_type].Course_ID << "\t";
+				cout << "课程名称： " << C_Tab->course_table[ret_type].Course_Name << "\t";
+				cout << "总学时： " << C_Tab->course_table[ret_type].Course_Hour_total << "\t";
+				cout << "授课学时： " << C_Tab->course_table[ret_type].Course_Hour_class << "\t";
+				cout << "实验或上机学时： " << C_Tab->course_table[ret_type].Course_Hour_experiment << "\t";
+				cout << "课程学分： " << C_Tab->course_table[ret_type].Course_Credit << "\t";
+				cout << "开课学期： " << C_Tab->course_table[ret_type].Course_Semester << "\t";
+			}
+			else
+			{
+				cout << "未找到课程类型为 " << type << " 的课程" << endl;
+			}
+			system("pause");
+			system("cls");
+			break;
+		}
+		default:
+		{
+			cout << "输入有误，请重新输入" << endl;
+			system("pause");
+			system("cls");
+			break;
+		}
+		}
+	}
+}
+
+void modifyCourse(Course_Table* C_Tab)		//修改课程信息
+{
+	cout << "请输入要修改的课程编号： " << endl;
+	string id;
+	cin >> id;
+	int ret = isExist_ID(C_Tab, id);
+	if (ret != -1)
+	{
+		string Course_name;					//课程名称
+		cout << "请输入课程名称：" << endl;
+		cin >> Course_name;
+		C_Tab->course_table[C_Tab->m_Size].Course_Name = Course_name;
+		cout << "请输入课程类型：" << endl;	//课程性质
+		cout << "1 -- 公共课" << endl;
+		cout << "2 -- 必修课" << endl;
+		cout << "3 -- 选修课" << endl;
+		int Course_type;
+		while (true)
+		{
+			cin >> Course_type;
+			if (Course_type == 1 || Course_type == 2 || Course_type == 3)
+			{
+				C_Tab->course_table[C_Tab->m_Size].Course_Type = Course_type;
+				break;
+			}
+			cout << "输入有误，请重新输入" << endl;
+		}
+		cout << "请输入总学时: " << endl;	//总学时
+		int Course_hour_total = 0;
+		cin >> Course_hour_total;
+		C_Tab->course_table[C_Tab->m_Size].Course_Hour_total = Course_hour_total;
+
+		cout << "请输入授课学时: " << endl;	//授课学时
+		int Course_hour_class = 0;
+		cin >> Course_hour_class;
+		C_Tab->course_table[C_Tab->m_Size].Course_Hour_class = Course_hour_class;
+
+		cout << "请输入实验或上机学时: " << endl;		//实验或上机学时
+		int Course_hour_experiment = 0;
+		cin >> Course_hour_experiment;
+		C_Tab->course_table[C_Tab->m_Size].Course_Hour_experiment = Course_hour_experiment;
+
+		cout << "请输入学分: " << endl;			//课程学分
+		float Course_credit = 0;
+		cin >> Course_credit;
+		C_Tab->course_table[C_Tab->m_Size].Course_Credit = Course_credit;
+
+		cout << "请输入开课学期: " << endl;		//开课学期
+		int Course_semester = 0;
+		cin >> Course_semester;
+		C_Tab->course_table[C_Tab->m_Size].Course_Semester = Course_semester;
+	}
+	else
+	{
+		cout << "未找到课程编号为 " << id << " 的课程" << endl;
+	}
+	system("pause");
+	system("cls");
+}
+
+void cleanCourse(Course_Table* C_Tab)		//清空选课系统
+{
+	cout << "是否要清空选课信息" << endl;
+	cout << "1 -- 确定" << endl;
+	cout << "2 -- 取消" << endl;
+	int select;
+	cin >> select;
+	switch (select)
+	{
+	case 1:
+		cout << "请输入密码" << endl;
+		int password;
+		cin >> password;
+		if (password == PassWord)
+		{
+			C_Tab->m_Size = 0;
+			cout << "选课信息已清空" << endl;
+			system("pause");
+			system("cls");
+		}
+		break;
+	case 2:
+		system("pause");
+		system("cls");
+		break;
+	}
+}
+
+int main()
+{
+	Course_Table C_Tab;				//创建课表
+	C_Tab.m_Size = 0;				//初始化已选课程数
+	int select = 0;
+	while (true)
+	{
+		showMenu();
+		cin >> select;
+		switch (select)
+		{
+		case 1:			//课程信息录入
+			addCourse(& C_Tab);
+			break;
+		case 2:			//课程信息浏览
+			showCourse(& C_Tab);
+			break;
+		case 3:			//课程信息查询
+			findCourse(& C_Tab);
+			break;
+		case 4:			//课程信息修改
+			modifyCourse(& C_Tab);
+			break;
+		case 5:			//课程信息清空
+			cleanCourse(& C_Tab);
+			break;
+		case 0:			//退出
+		{
+			cout << "欢迎下次使用" << endl;
+			system("pause");
+			return 0;
+			break;
+		}
+		default:
+		{
+			cout << "输入有误，请重新输入" << endl;
+			system("pause");
+			system("cls");
+		}
+		}
+	}
+	system("pasue");
+	return 0;
+}
